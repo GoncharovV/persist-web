@@ -6,7 +6,6 @@ export class Subscribable<TListener extends AnyCallback> {
 
   constructor() {
     this.subscribe = this.subscribe.bind(this);
-    this.clearAllListeners = this.clearAllListeners.bind(this);
   }
 
   public subscribe(listener: TListener): () => void {
@@ -26,10 +25,6 @@ export class Subscribable<TListener extends AnyCallback> {
 
   public hasListeners(): boolean {
     return this.listeners.size > 0;
-  }
-
-  public clearAllListeners() {
-    this.listeners.clear();
   }
 
   protected onSubscribe() {
