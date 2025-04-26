@@ -58,12 +58,10 @@ const defaultParser: LocalStorageParser<unknown> = (data) => {
 };
 
 /**
- * TODO: Translate
+ * When `LocalStorage` changes, browser will only send events to OTHER tabs
+ * but we also need to keep in sync all stores on the CURRENT tab
  * 
- * При изменении LocalStorage, браузер отправит event во все ДРУГИЕ вкладки
- *
- * В текущую вкладку событие не отправляется.
- * Чтобы обеспечить синхронизацию значений внутри одной страницы, самостоятельно создаем event
+ * So, manually dispatching event to current tab
  */
 function dispatchStorageEvent(key: string, newValue: string | null, oldValue: string | null) {
   window.dispatchEvent(
@@ -91,22 +89,23 @@ export class LocalStorageStore<TValue = string> extends Subscribable<Subscriber<
     options: LocalStorageOptions<TValue> = {},
   ) {
     super();
+
     this.patchOptions(options);
     this.bindMethods();
-
-    if (isSSR) return;
 
     this.setDefaultValue();
   }
 
-  private bindMethods() {
+  private bindMethods(): void {
     this.getCurrentValue = this.getCurrentValue.bind(this);
     this.clearValue = this.clearValue.bind(this);
     this.setValue = this.setValue.bind(this);
     this.patchOptions = this.patchOptions.bind(this);
   }
 
-  private setDefaultValue() {
+  private setDefaultValue(): void {
+    if (isSSR) return;
+
     const { defaultValue, serializer } = this.options;
 
     try {
@@ -123,7 +122,7 @@ export class LocalStorageStore<TValue = string> extends Subscribable<Subscriber<
     }
   }
 
-  public patchOptions(options: Partial<LocalStorageOptions<TValue>>) {
+  public patchOptions(options: Partial<LocalStorageOptions<TValue>>): void {
     this.options = {
       ...this.options,
       ...options,
@@ -173,7 +172,7 @@ export class LocalStorageStore<TValue = string> extends Subscribable<Subscriber<
     }
   }
 
-  public clearValue() {
+  public clearValue(): boolean {
     if (isSSR) return false;
 
     const oldValue = localStorage.getItem(this.key);
@@ -185,7 +184,7 @@ export class LocalStorageStore<TValue = string> extends Subscribable<Subscriber<
     return true;
   }
 
-  private handleError(error: unknown) {
+  private handleError(error: unknown): void {
     this.options.onError(error);
 
     if (this.options.throwOnError) {
@@ -193,7 +192,7 @@ export class LocalStorageStore<TValue = string> extends Subscribable<Subscriber<
     }
   }
 
-  private handleStorageChange = (event: StorageEvent) => {
+  private handleStorageChange = (event: StorageEvent): void => {
     if (event.key !== this.key || event.storageArea !== storageArea) return;
 
     try {
@@ -212,6 +211,8 @@ export class LocalStorageStore<TValue = string> extends Subscribable<Subscriber<
   };
 
   protected onSubscribe(): void {
+    if (isSSR) return;
+
     // Subscribe to real DOM event only one time
     if (this.listeners.size === 1) {
       window.addEventListener('storage', this.handleStorageChange);
