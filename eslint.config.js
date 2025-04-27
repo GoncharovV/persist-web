@@ -1,5 +1,5 @@
 import globals from 'globals';
-import { eslintConfig, eslintConfigReact } from '@vg/eslint-config';
+import { eslintConfig, eslintConfigReact } from '@goncharovv/eslint-config';
 
 
 /** @type {import('eslint').Linter.Config[]} */
@@ -8,6 +8,10 @@ export default [
   ...eslintConfigReact,
 
   { languageOptions: { globals: { ...globals.browser } } },
+
+  {
+    ignores: ['.tsup'],
+  },
 
   {
     rules: {

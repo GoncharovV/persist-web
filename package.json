@@ -12,12 +12,12 @@
     "react": ">=18"
   },
   "devDependencies": {
+    "@goncharovv/eslint-config": "1.0.0",
     "@types/node": "22.15.2",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
-    "@vg/eslint-config": "file:../eslint-config",
     "@vitejs/plugin-react": "4.4.1",
-    "eslint": "9.22.0",
+    "eslint": "9.25.1",
     "globals": "16.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
