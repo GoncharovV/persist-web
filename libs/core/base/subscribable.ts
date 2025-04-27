@@ -27,6 +27,12 @@ export class Subscribable<TListener extends AnyCallback> {
     return this.listeners.size > 0;
   }
 
+  public clearAllListeners() {
+    this.listeners.clear();
+
+    this.onUnsubscribe();
+  }
+
   protected onSubscribe() {
     // For inheritance
   }
